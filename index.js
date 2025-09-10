@@ -1,17 +1,11 @@
-const express = require('express')
-const cors = require('cors')
+const express = require("express");
+const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 3000;
-const { MongoClient, ServerApiVersion } = require('mongodb');
-
+const { MongoClient, ServerApiVersion } = require("mongodb");
 
 app.use(cors());
 app.use(express.json());
-
-
-
-
-
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.d4gmgst.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -21,7 +15,7 @@ const client = new MongoClient(uri, {
     version: ServerApiVersion.v1,
     strict: true,
     deprecationErrors: true,
-  }
+  },
 });
 
 async function run() {
@@ -30,23 +24,31 @@ async function run() {
 
     const usersCollection = client.db("virtualBookshelf").collection("users");
 
-    
-    app.post("/users", async(req, res) => {
-        const newUser = req.body;
-        const result = await usersCollection.insertOne(newUser);
-        res.send(result)
-    })
+    app.post("/users", async (req, res) => {
+      const newUser = req.body;
+      const result = await usersCollection.updateOne(
+        { email: newUser.email },
+        { $setOnInsert: newUser },
+        { upsert: true }
+      );
+      if (result.upsertedCount > 0) {
+        res.send({ success: true, message: "User inserted!" });
+      } else {
+        res.send({ success: false, message: "User already exists!" });
+      }
+    });
 
+    
 
     await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    console.log(
+      "Pinged your deployment. You successfully connected to MongoDB!"
+    );
   } finally {
-
-
   }
 }
 run().catch(console.dir);
 
 app.listen(port, () => {
-    console.log("virtual server is running");
-})
+  console.log("virtual server is running");
+});
