@@ -3,6 +3,7 @@ const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 3000;
 const { MongoClient, ServerApiVersion } = require("mongodb");
+require('dotenv').config()
 
 app.use(cors());
 app.use(express.json());
@@ -23,6 +24,7 @@ async function run() {
     await client.connect();
 
     const usersCollection = client.db("virtualBookshelf").collection("users");
+    const booksCollection = client.db("virtualBookshelf").collection("books");
 
     app.post("/users", async (req, res) => {
       const newUser = req.body;
@@ -38,7 +40,13 @@ async function run() {
       }
     });
 
-    
+    app.post("/books", async (req, res) => {
+      const newBook = req.body;
+      const result = await booksCollection.insertOne(newBook);
+      res.send(result)
+    })
+
+
 
     await client.db("admin").command({ ping: 1 });
     console.log(
@@ -49,6 +57,10 @@ async function run() {
 }
 run().catch(console.dir);
 
+app.get('/', (req, res) => {
+  res.send('virtual server is running')
+})
+
 app.listen(port, () => {
-  console.log("virtual server is running");
+  console.log(`virtual server is running on port:${port}`);
 });
