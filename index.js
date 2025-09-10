@@ -27,8 +27,15 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     await client.connect();
+
+    const usersCollection = client.db("virtualBookshelf").collection("users");
+
     
-    
+    app.post("/users", async(req, res) => {
+        const newUser = req.body;
+        const result = await usersCollection.insertOne(newUser);
+        res.send(result)
+    })
 
 
     await client.db("admin").command({ ping: 1 });
