@@ -44,6 +44,11 @@ async function run() {
       const newBook = req.body;
       const result = await booksCollection.insertOne(newBook);
       res.send(result)
+    });
+
+    app.get("/books", async (req, res) => {
+      const result = await booksCollection.find().toArray();
+      res.send(result);
     })
 
 
