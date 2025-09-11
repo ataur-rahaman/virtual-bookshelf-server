@@ -51,6 +51,19 @@ async function run() {
       res.send(result);
     })
 
+    app.get("/search", async (req, res) => {
+      const search = req.query.q;
+      const query = {
+        $or: [
+          {book_title: {$regex: search, $options: "i"}},
+          {book_author: {$regex: search, $options: "i"}},
+          {reading_status: {$regex: search, $options: "i"}}
+        ]
+      }
+
+      const result = await booksCollection.find(query).toArray();
+      res.send(result)
+    })
 
 
     await client.db("admin").command({ ping: 1 });
