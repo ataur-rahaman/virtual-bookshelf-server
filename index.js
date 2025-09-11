@@ -46,6 +46,16 @@ async function run() {
       res.send(result)
     });
 
+    app.put("/books/:id/upvote", async (req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const newUpvote = {
+        $inc: {upvote: 1},
+      };
+      const result = await booksCollection.updateOne(filter, newUpvote);
+      res.send(result);
+    })
+
     app.get("/books", async (req, res) => {
       const result = await booksCollection.find().toArray();
       res.send(result);
