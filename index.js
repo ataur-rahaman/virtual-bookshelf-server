@@ -54,6 +54,21 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/reviews/check", async (req, res) => {
+      const {book_id, user_email} = req.query;
+      const query = {
+        book_id,
+        user_email,
+      }
+      const result = await reviewsCollection.findOne(query);
+      if(result){
+        res.send({exist: true})
+      }
+      else{
+        res.send({exist: false})
+      }
+    })
+
     app.put("/books/:id/upvote", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
