@@ -3,7 +3,7 @@ const cors = require("cors");
 const app = express();
 const port = process.env.PORT || 3000;
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-require('dotenv').config()
+require("dotenv").config();
 
 app.use(cors());
 app.use(express.json());
@@ -25,6 +25,7 @@ async function run() {
 
     const usersCollection = client.db("virtualBookshelf").collection("users");
     const booksCollection = client.db("virtualBookshelf").collection("books");
+    const reviewsCollection = client.db("virtualBookshelf").collection("reviews");
 
     app.post("/users", async (req, res) => {
       const newUser = req.body;
@@ -43,18 +44,25 @@ async function run() {
     app.post("/books", async (req, res) => {
       const newBook = req.body;
       const result = await booksCollection.insertOne(newBook);
-      res.send(result)
+      res.send(result);
+    });
+
+    app.post("/reviews", async (req, res) => {
+      const review = req.body;
+      review.created_at = new Date();
+      const result = await reviewsCollection.insertOne(review);
+      res.send(result);
     });
 
     app.put("/books/:id/upvote", async (req, res) => {
       const id = req.params.id;
-      const filter = {_id: new ObjectId(id)};
+      const filter = { _id: new ObjectId(id) };
       const newUpvote = {
-        $inc: {upvote: 1},
+        $inc: { upvote: 1 },
       };
       const result = await booksCollection.updateOne(filter, newUpvote);
       res.send(result);
-    })
+    });
 
     app.get("/books", async (req, res) => {
       const result = await booksCollection.find().toArray();
@@ -63,25 +71,24 @@ async function run() {
 
     app.get("/books/:id", async (req, res) => {
       const id = req.params.id;
-      const query = {_id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await booksCollection.findOne(query);
       res.send(result);
-    })
+    });
 
     app.get("/search", async (req, res) => {
       const search = req.query.q;
       const query = {
         $or: [
-          {book_title: {$regex: search, $options: "i"}},
-          {book_author: {$regex: search, $options: "i"}},
-          {reading_status: {$regex: search, $options: "i"}}
-        ]
-      }
+          { book_title: { $regex: search, $options: "i" } },
+          { book_author: { $regex: search, $options: "i" } },
+          { reading_status: { $regex: search, $options: "i" } },
+        ],
+      };
 
       const result = await booksCollection.find(query).toArray();
-      res.send(result)
-    })
-
+      res.send(result);
+    });
 
     await client.db("admin").command({ ping: 1 });
     console.log(
@@ -92,9 +99,9 @@ async function run() {
 }
 run().catch(console.dir);
 
-app.get('/', (req, res) => {
-  res.send('virtual server is running')
-})
+app.get("/", (req, res) => {
+  res.send("virtual server is running");
+});
 
 app.listen(port, () => {
   console.log(`virtual server is running on port:${port}`);
