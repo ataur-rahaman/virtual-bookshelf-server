@@ -49,14 +49,21 @@ async function run() {
 
     app.post("/reviews", async (req, res) => {
       const review = req.body;
-      review.created_at = new Date();
       const result = await reviewsCollection.insertOne(review);
       res.send(result);
     });
-
+    
     app.get("/reviews", async (req, res) => {
       const book_id = req.query.book_id;
       const result = await reviewsCollection.find({book_id: book_id}).toArray();
+      res.send(result);
+    });
+    
+    app.delete("/reviews/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const query = {_id: new ObjectId(id)};
+      const result = await reviewsCollection.deleteOne(query);
       res.send(result);
     })
 
