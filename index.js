@@ -54,6 +54,12 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/reviews", async (req, res) => {
+      const book_id = req.query.book_id;
+      const result = await reviewsCollection.find({book_id: book_id}).toArray();
+      res.send(result);
+    })
+
     app.get("/reviews/check", async (req, res) => {
       const {book_id, user_email} = req.query;
       const query = {
