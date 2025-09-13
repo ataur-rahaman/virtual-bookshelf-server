@@ -40,12 +40,30 @@ async function run() {
         res.send({ success: false, message: "User already exists!" });
       }
     });
+     app.put("/books/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = {_id: new ObjectId(id)};
+      const updatedBook = req.body;
+      const update = {$set: updatedBook}
+      const result = await booksCollection.updateOne(filter, update);
+      res.send(result);
+    })
 
     app.post("/books", async (req, res) => {
       const newBook = req.body;
       const result = await booksCollection.insertOne(newBook);
       res.send(result);
     });
+
+
+    app.get("/my-books", async (req, res) => {
+      const email = req.query.email;
+      const query = {user_email: email};
+      const result = await booksCollection.find(query).toArray();
+      res.send(result);
+    })
+
+   
 
     app.post("/reviews", async (req, res) => {
       const review = req.body;
