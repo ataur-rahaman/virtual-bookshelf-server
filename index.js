@@ -149,6 +149,11 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/top-books", async (req, res) => {
+      const result = await booksCollection.find().sort({upvote: -1}).limit(8).toArray();
+      res.send(result);
+    })
+
     app.get("/search", async (req, res) => {
       const search = req.query.q;
       const query = {
